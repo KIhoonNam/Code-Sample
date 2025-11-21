@@ -1,0 +1,400 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (c) 2020 Isara Technologies. All Rights Reserved. -->
+<!--GearVR plugin additions-->
+<root xmlns:android="http://schemas.android.com/apk/res/android"
+	  xmlns:tools="http://schemas.android.com/tools">
+	<!-- init section is always evaluated once per architecture -->
+	<trace enable="true"/>
+	<init>
+		<log text="AndroidAPITemplate init"/>		
+	</init>
+	<queries>
+		<intent>
+			<action android:name="com.google.android.gms.games.service.START" />
+		</intent>
+	</queries>
+	<androidManifestUpdates>
+				<addPermission android:name="android.permission.INTERNET"/>
+				<addPermission android:name="android.permission.ACCESS_NETWORK_STATE"/>
+				<setElement result="AdMobMeta" value="meta-data" />
+				<addAttribute tag="$AdMobMeta" name="android:name" value="com.google.android.gms.ads.APPLICATION_ID" />
+				<addAttribute tag="$AdMobMeta" name="android:value" value="ca-app-pub-5747602554912250~1472577383" />
+				<addElement tag="application" name="AdMobMeta" />
+		<removeElements tag="application">
+			<activity android:name="com.codestory.PSProject/com.google.android.gms.auth.api.signin.internal.SignInHubActivity" />
+		</removeElements>
+		<addElements tag="application">
+			<activity
+					android:name="com.google.android.gms.auth.api.signin.internal.SignInHubActivity"
+					android:exported="true"
+					android:launchMode="singleTop"
+					tools:node="merge"
+					tools:replace="android:exported" />
+		</addElements>
+	</androidManifestUpdates>
+
+	<androidManifestUpdates>
+		<addElements tag="application">
+			<property
+					android:name="android.adservices.AD_SERVICES_CONFIG"
+					android:resource="@xml/gma_ad_services_config"
+					tools:replace="android:resource" />
+		</addElements>
+</androidManifestUpdates>
+	<proguardAdditions>
+		<insert><![CDATA[
+      -keepattributes Signature
+      -dontskipnonpubliclibraryclassmembers
+-keepnames class com.aar.admoblibrary.** { *; }  
+-keep class com.google.android.gms.games.** { *; }
+-keep class com.google.android.gms.common.api.** { *; }
+-keepclassmembers class * {
+    public *;
+}
+     -keepclassmembers class com.epicgames.ue4.GameActivity {
+            public <methods>;
+            public <fields>;
+     }
+          -keepclassmembers class com.epicgames.unreal.GameActivity {
+            public <methods>;
+            public <fields>;
+     }
+     -keep public class com.epicgames.unreal.GameActivity.** {public protected *;}
+     
+     -keep public class com.epicgames.unreal.GameActivity {
+    public void AndroidThunkJava_CreateBanner(String);
+	}
+    
+    -keep class com.google.android.gms.auth.** { *; }
+    -keep class com.google.firebase.auth.** { *; }
+    ]]></insert>
+	</proguardAdditions>
+	<prebuildCopies>
+		<copyFile src="$S(ProjectDir)/Services/google-services.json" dst="$S(BuildDir)/gradle/app/google-services.json" force="true"/>
+		<copyFile src="$S(ProjectDir)/Services/google-services.json" dst="$S(BuildDir)/google-services.json" force="true"/>
+	</prebuildCopies>
+	<gradleCopies>
+		<copyFile src="$S(ProjectDir)/Services/google-services.json" dst="$S(BuildDir)/gradle/app/google-services.json" force="true"/>
+		<copyFile src="$S(ProjectDir)/Services/google-services.json" dst="$S(BuildDir)/google-services.json" force="true"/>
+	</gradleCopies>
+
+	<buildscriptGradleAdditions>
+
+				<insert>
+					dependencies {
+					classpath 'com.google.gms:google-services:4.4.2'
+					classpath 'com.android.tools.build:gradle:8.2.2'
+				</insert>
+				<insert>
+					}
+				</insert>
+	</buildscriptGradleAdditions>
+
+	<buildGradleAdditions>
+		<insert>
+
+			allprojects {
+			repositories {
+			mavenCentral()
+			google()
+			maven { url = uri("https://android-sdk.is.com/") }
+			}
+			}
+
+			dependencies {
+			implementation(platform("com.google.firebase:firebase-bom:33.1.1"))
+			implementation files('./libs/AdmobLibrary-release.aar')
+			<!--implementation files('./libs/mediation-sdk-8.7.0.aar')
+			implementation files('./libs/adquality-sdk-7.23.2.aar')-->
+			implementation("com.google.android.gms:play-services-auth:21.2.0")
+			implementation 'com.google.android.gms:play-services-ads:23.6.0'
+			implementation 'com.google.android.gms:play-services-games-v2:20.1.2' 
+			implementation("com.google.firebase:firebase-auth-ktx")
+			implementation("com.google.firebase:firebase-firestore-ktx")
+			implementation("com.google.firebase:firebase-database-ktx")
+			implementation 'com.android.billingclient:billing:7.1.1'
+			implementation("com.google.ads.mediation:ironsource:8.5.0.1")
+			}
+		</insert> 
+		<insert>
+			apply plugin: 'com.android.application'
+			apply plugin: 'com.google.gms.google-services'
+		</insert>
+	</buildGradleAdditions>
+
+  <resourceCopies>
+	  <copyFile src="$S(ProjectDir)/Libs/AdmobLibrary-release.aar" dst="$S(BuildDir)/libs/AdmobLibrary-release.aar" />
+	  <copyFile src="$S(ProjectDir)/Libs/AdmobLibrary-release.aar" dst="$S(BuildDir)/gradle/app/libs/AdmobLibrary-release.aar" />
+	 <!-- <copyFile src="$S(ProjectDir)/Libs/adquality-sdk-7.23.2.aar" dst="$S(BuildDir)/libs/adquality-sdk-7.23.2.aar" />
+	 <copyFile src="$S(ProjectDir)/Libs/adquality-sdk-7.23.2.aar" dst="$S(BuildDir)/gradle/app/libs/adquality-sdk-7.23.2.aar" />
+	 <copyFile src="$S(ProjectDir)/Libs/mediation-sdk-8.7.0.aar" dst="$S(BuildDir)/libs/mediation-sdk-8.7.0.aar" />
+	 <copyFile src="$S(ProjectDir)/Libs/mediation-sdk-8.7.0.aar" dst="$S(BuildDir)/gradle/app/libs/mediation-sdk-8.7.0.aar" />-->
+	  <copyFile src="$S(ProjectDir)/Services/google-services.json" dst="$S(BuildDir)/gradle/app/google-services.json" force="true"/>
+	  <copyFile src="$S(ProjectDir)/Services/google-services.json" dst="$S(BuildDir)/google-services.json" force="true"/>
+    <!-- Copy the generated resource file to be packaged -->
+  </resourceCopies>
+
+  <AARImports>
+	  <insertValue value="repository $S(ProjectDir)/Libs"/>
+	  <insertNewline/>
+	  <insert>
+		  com.aar.admoblibrary:AdmobLibrary-release:1.0
+	  </insert>
+	  <insertNewline/>
+  </AARImports>
+  
+  <!-- optional additions to the GameActivity imports in GameActivity.java -->
+	<gameActivityImportAdditions>
+	  <insert>
+		  import androidx.annotation.Keep;
+		  import com.aar.admoblibrary.AdmobMain;
+		  import com.aar.admoblibrary.FireBaseMain;
+		  import com.aar.admoblibrary.PurchaseMain;
+		  import androidx.annotation.NonNull;
+		 // import com.google.android.gms.tasks.Task;
+		  import com.google.android.gms.common.api.ApiException;
+		  import com.google.android.gms.auth.api.signin.GoogleSignIn;
+		  import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
+		  import com.google.android.gms.auth.api.signin.GoogleSignInClient;
+		  import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
+		  import com.google.android.gms.tasks.OnCompleteListener;
+		  import com.google.android.gms.tasks.Task;
+		  import android.content.Intent;
+		  import android.util.Log;
+		  import com.android.billingclient.api.*;
+
+
+    </insert>
+	</gameActivityImportAdditions>
+	
+
+	<!-- optional additions to the GameActivity class in GameActivity.java -->
+	<gameActivityClassAdditions>
+		<insert>
+		
+			public AdmobMain Admob = new AdmobMain();
+			public FireBaseMain pFireBase = new FireBaseMain();
+			public PurchaseMain Purchase = new PurchaseMain();
+			public GoogleSignInClient googleSignInClient;
+			<!-- Purchase Function -->
+			<![CDATA[
+			@Keep
+			void AndroidThunkJava_QueryProducts(ArrayList<String> arrProduct)
+			{
+				if(Purchase != null)
+				{
+					Log.debug("Click");
+				//	Purchase.queryAvailableProducts(arrProduct);
+				}
+			}
+
+
+
+			@Keep
+			void AndroidThunkJava_LaunchPurchaseFlow(String Product)
+			{
+					if(Purchase != null)
+				{
+					Log.debug("Click");
+					Purchase.queryAvailableProducts(Product,new PurchaseMain.Callback()
+			{
+			@Override
+			public void onResult(int result, String type) {
+				Log.debug("onResultType");
+				onNativePruchaseResult(result,type);
+			}
+			});
+				}
+			}
+			@Keep
+			public native void onNativePruchaseResult(int amount,String type);
+				]]>
+			<!-- Firebase Function -->
+			@Keep
+			void AndroidThunkJava_DatabaseSetValue(String path,@NonNull Object value)
+			{
+				if(pFireBase != null)
+				{
+					//pFireBase.SetDataValue(path,value);
+				}
+			}
+			@Keep
+			void AndroidThunkJava_Sign_In()
+			{
+				if(pFireBase != null)
+				{
+					pFireBase.signIn();
+				}
+			}
+			
+			<!-- Admob Function -->
+			@Keep
+			void AndroidThunkJava_LoadInterstitialAd(String string)
+			{
+			Admob.LoadInterstitialAd(string);
+			}
+
+			@Keep
+			void AndroidThunkJava_LoadRewardAd(String string)
+			{
+				Admob.LoadRewardAd(string);
+			}
+			@Keep
+			public native void onNativeRewardResult(int amount,String type);
+			
+			@Keep
+			void AndroidThunkJava_ShowRewardAd()
+			{
+			Admob.ShowRewardAd(new AdmobMain.Callback()
+			{
+			@Override
+			public void onResult(int amount, @NonNull String type) {
+				Log.debug("onResultType");
+				onNativeRewardResult(amount,type);
+			}
+			});
+			}
+			@Keep
+			void AndroidThunkJava_CreateBanner(String string)
+			{
+				Log.debug("CreateBanner");
+				Admob.CreateBanner(string);
+			}
+			@Keep
+			void AndroidThunkJava_ShowInterstitialAd()
+			{
+				Log.debug("ShowBanner");
+				Admob.ShowInterstitialAd();
+			}
+		
+		</insert>
+	</gameActivityClassAdditions>
+	
+	<!-- optional additions to GameActivity onCreate metadata reading in GameActivity.java -->
+	<gameActivityReadMetadataAdditions>
+	<insert>
+
+  </insert>
+	</gameActivityReadMetadataAdditions>
+	
+	<!-- optional additions to GameActivity onCreate in GameActivity.java -->
+	<gameActivityOnCreateAdditions>
+		<insert>
+
+
+		</insert>
+	</gameActivityOnCreateAdditions>
+
+	<!-- optional additions to GameActivity onDestroy in GameActivity.java -->
+	<gameActivityOnDestroyAdditions>
+		<insert>
+		
+		</insert>
+	</gameActivityOnDestroyAdditions>
+	
+	
+	<!-- optional additions to GameActivity onStart in GameActivity.java -->
+	<gameActivityOnStartAdditions>
+		<insert>
+			if(pFireBase != null)
+			{
+				pFireBase.SetActivity(this);
+				pFireBase.InitializeAuth();
+			}
+			
+			if(Admob != null)
+			{
+
+			Admob.SetActivity(this);
+			//Admob.Initialize();
+			}
+			
+			if(Purchase != null)
+			{
+				Purchase.SetActivity(this);
+				Purchase.Initialize();
+			}
+		</insert>
+	</gameActivityOnStartAdditions>
+
+	<!-- optional additions to GameActivity onStop in GameActivity.java -->
+	<gameActivityOnStopAdditions>
+		<insert>
+		
+		</insert>
+	</gameActivityOnStopAdditions>
+	
+
+	<!-- optional additions to GameActivity onPause in GameActivity.java	-->
+	<gameActivityOnPauseAdditions>
+    <insert>
+		if(Admob != null)
+		{
+		Admob.onPause();
+		}
+    </insert>
+  </gameActivityOnPauseAdditions>
+
+
+  <!-- optional additions to GameActivity onResume in GameActivity.java	-->
+  <gameActivityOnResumeAdditions>
+    <insert>
+		if(Admob != null)
+		{
+		Admob.onResume();
+		}
+    </insert>
+  </gameActivityOnResumeAdditions>
+
+
+	<!-- optional additions to GameActivity onActivityResult in GameActivity.java -->
+	<gameActivityOnActivityResultAdditions>
+		<insert>
+			<![CDATA[
+    if (requestCode == 9001) { // AAR에서 signIn() 호출 시 사용한 요청 코드
+        android.util.Log.d("GameActivity", "onActivityResult received for SIGN_IN_REQUEST_CODE");
+        try {
+            // 최신 API를 사용하여 GoogleSignInAccount 가져오기
+            Task<GoogleSignInAccount> task = GoogleSignIn.getSignedInAccountFromIntent(data);
+            GoogleSignInAccount account = task.getResult(ApiException.class);
+
+            // 로그인 성공: FireBaseMain의 메소드를 호출하여 Firebase 인증 시도
+            android.util.Log.i("GameActivity", "Google Sign-In successful. Attempting Firebase Auth.");
+            if (pFireBase != null) { // pFireBase 인스턴스가 유효한지 확인
+                pFireBase.firebaseAuthWithPlayGames(account); // <<-- 여기가 핵심!
+                // Firebase 인증 결과는 FireBaseMain 내부의 OnCompleteListener에서 처리됩니다.
+                // 필요하다면 해당 리스너에서 네이티브 콜백을 호출하도록 FireBaseMain을 수정할 수 있습니다.
+                // 예: nativeOnSignInCompleteFb(true, "Firebase Auth Initiated");
+                   nativeOnSignInCompleteFb(true, "Firebase instance is null.");
+            } else {
+                android.util.Log.e("GameActivity", "pFireBase instance is null!");
+                nativeOnSignInCompleteFb(false, "Firebase instance is null.");
+            }
+
+        } catch (ApiException e) {
+            // 로그인 실패
+            android.util.Log.e("GameActivity", "Google Sign-In failed. Code: " + e.getStatusCode() + ", Message: " + e.getMessage());
+            String errorMessage = "Google Sign-In Failed: " + e.getStatusCode();
+            nativeOnSignInCompleteFb(false, errorMessage); // 네이티브 코드에 실패 알림
+        } catch (IllegalStateException e) {
+            // task.getResult(ApiException.class) 에서 발생 가능 (이미 결과가 소비된 경우 등)
+             android.util.Log.e("GameActivity", "Google Sign-In failed. IllegalStateException: " + e.getMessage());
+             nativeOnSignInCompleteFb(false, "Google Sign-In Failed: Illegal State");
+        } catch (Exception e) {
+             // 기타 예외 처리
+             android.util.Log.e("GameActivity", "Google Sign-In failed. Exception: " + e.getMessage());
+             nativeOnSignInCompleteFb(false, "Google Sign-In Failed: Unknown Exception");
+        }
+    } else {
+        // 다른 요청 코드 처리 (필요한 경우)
+    }
+        ]]>
+		</insert>
+	</gameActivityOnActivityResultAdditions>
+	
+
+	<!-- optional libraries to load in GameActivity.java before libUE4.so -->
+	<soLoadLibrary>
+		<!-- need this if plugin enabled and supported architecture, even if not packaged for GearVR -->
+	</soLoadLibrary>
+</root>
